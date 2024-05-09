@@ -17,7 +17,7 @@ from django.utils.formats import date_format
 from django.utils import timezone
 
 
-apiKey = "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"
+apiKey = ""
 
 
 def welcome(request):
