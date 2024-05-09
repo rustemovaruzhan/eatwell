@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+    <style>
+      .errorlist{
+        max-width: 414px;
+        word-wrap: break-word;
+        color: red;
+        padding:10px;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+      
+      <div>
+        <h3 class="eat">Eat<span class="well">Well</span></h3>
+        <h4>Welcome!</h4>
+        <h5>Sign into Your Account</h5>
+      </div>
+      <form method="post">
+         {% csrf_token %}
+         {{ form.as_p }}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        <div class="buttons">
+          <button class="login" type="submit">Log In</button>
+          <span class="or">OR</span>
+          {% load socialaccount %}
+          <a class="google" href="{% provider_login_url 'google' %}"><img src="{% static 'assets/img/google.png' %}" alt="">Continue with Google</a>
+        </div>
+        <span class="dont">Don’t have an account? <a href="{% url 'signup' %}">Signup</a></span>
+      </form>
+    </section>
+  </body>
+</html>

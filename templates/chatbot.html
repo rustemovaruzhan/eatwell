@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+    <style>
+
+      .messages {
+        height: 845px;
+        top: 65px;
+        max-height: 80%;
+      }
+       #chat {
+        overflow-y: scroll;
+       }
+
+      .chat-bubble {
+        max-width: 80%;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 20px;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .user-bubble {
+        width: 260px;
+        border: 1px solid #cecece;
+        background-color: #56a367;
+        padding: 13px;
+        border-radius: 5px;
+        margin-right: 15px;
+        margin-left: auto;
+        color: white;
+      }
+
+      .assistant-bubble {
+        width: 290px;
+        border: 1px solid #cecece;
+        background-color: #f3f3f3;
+        padding: 13px;
+        border-radius: 5px;
+        margin-left: 15px;
+      }
+
+      .input-group {
+        margin-top: 20px;
+      }
+
+      #userInput,
+      #sendMessage {
+        border: none;
+        border-radius: 5px;
+      }
+
+      #userInput {
+        border: 1px solid #c6c6c6;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 5px;
+      }
+
+      #sendMessage {
+        margin-left: 15px;
+        color: #56a367;
+        background-color: transparent;
+      }
+
+      .analysis-message {
+        color: #666;
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .user-bubble,
+      .assistant-bubble {
+        margin-bottom: 15px;
+      }
+
+      .clearfix::after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      .message_footer {
+        padding: 40px 15px;
+      }
+
+      .message_footer_inner {
+        display: flex;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="home_section">
+      <header>
+        <div class="header_inner">
+          <a href="{% url 'messages' %}"
+            ><img src="{% static 'assets/img/arrow.png' %}" alt=""
+          /></a>
+          <h5>Chat Bot</h5>
+          <a href="#"
+            ><img src="{% static 'assets/img/search.png' %}" alt=""
+          /></a>
+        </div>
+      </header>
+      <div class="notifications messages">
+        <div id="chat">
+          <div class="assistant-bubble chat-bubble">
+            Ask me anything, and I will assist you.
+          </div>
+        </div>
+      </div>
+      <footer class="message_footer">
+        <div class="footer_inner message_footer_inner">
+          <input
+            type="text"
+            id="userInput"
+            class="form-control"
+            placeholder="Type your message..."
+          />
+          <button id="sendMessage" class="btn btn-primary">
+            <img src="{% static 'assets/img/send.png' %}" alt="" />
+          </button>
+        </div>
+      </footer>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+// Функция для добавления сообщения в чат
+function addMessage(role, content) {
+    const chat = document.getElementById('chat');
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('chat-bubble');
+    messageDiv.classList.add(role === 'user' ? 'user-bubble' : 'assistant-bubble');
+    messageDiv.textContent = content;
+    chat.appendChild(messageDiv);
+    chat.scrollTop = chat.scrollHeight; // Автоматическая прокрутка к последнему сообщению
+}
+
+// Функция отправки сообщения
+function sendMessage() {
+    const userInput = document.getElementById('userInput').value;
+    if (!userInput.trim()) return; // Не отправлять пустые сообщения
+
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'generate_response' %}", // Здесь должен быть URL вашего обработчика
+        data: {
+            'user_message': userInput,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            addMessage('user', userInput); // Добавить сообщение пользователя в чат
+            addMessage('assistant', response.response); // Добавить ответ сервера в чат
+        },
+        error: function(error) {
+            console.error('Error sending message:', error);
+        }
+    });
+    document.getElementById('userInput').value = ''; // Очистить поле ввода после отправки
+}
+
+// Обработчик события для отправки сообщения по нажатию Enter
+document.getElementById("userInput").addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+    }
+});
+
+// Обработчик события для кнопки отправки
+document.getElementById("sendMessage").addEventListener("click", function(event) {
+    event.preventDefault();
+    sendMessage();
+});
+</script>
+
+  </body>
+</html>

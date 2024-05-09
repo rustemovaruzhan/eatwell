@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+      {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+      <style>
+          .search-popup {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000; /* Ensure it's above the header */
+        }
+
+        .search-content {
+            margin: auto;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        header {
+            position: relative;
+            width: 100%;
+            z-index: 500; /* Lower than the popup */
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 3px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #56a367;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .notifications {
+            margin-bottom: 100px; /* Добавляем нижний отступ к блоку уведомлений */
+        }
+
+        #userList {
+            margin-top: 100px; /* Добавляем верхний отступ к списку пользователей */
+        }
+
+      </style>
+  </head>
+  <body>
+    <section class="home_section">
+    <header id="main-header">
+    <div class="header_inner">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'assets/img/arrow.png' %}" alt="">
+        </a>
+        <h5>Messages</h5>
+        <a href="#" id="search-trigger">
+            <img src="{% static 'assets/img/search.png' %}" alt="">
+        </a>
+    </div>
+</header>
+    <div id="search-popup" class="search-popup">
+        <div class="search-content">
+            <input type="text" id="searchInput" placeholder="Search users..." autofocus oninput="searchUsers()">
+            <button onclick="closeSearch()">Close</button>
+        </div>
+    </div>
+     <div class="notifications">
+        <a href="{% url 'chatbot' %}" class="notification message">
+            <img src="{% static 'assets/img/Nutritionist.png' %}" alt="" />
+            <div>
+                <h4>Nutritionist Bot</h4>
+                <p>Ask me anything, and I will assist you.</p>
+            </div>
+        </a>
+    </div>
+    <div class="notifications" id="userList">
+      {% for user in users %}
+        <a href="{% url 'message' user.id %}" class="notification message">
+            {% if user.user_avatar and user.user_avatar.image.url != '/media/pofile%20picture.png' %}
+                <img src="{{ user.user_avatar.image.url }}" alt="" style="width: 50px; height: 50px; border-radius: 100%;">
+                 {% else %}
+                <img src="{% static 'assets/img/profile picture.png' %}" alt="">
+            {% endif %}
+          <div>
+            <h4>{{ user.username }}</h4>
+            {% if user.last_message_text %}
+            <p>
+              {{ user.last_message_text }}
+            </p>
+          </div>
+              {% if user.last_message_time %}
+                <h5>{{ user.last_message_time|timesince }}</h5>
+              {% endif %}
+            {% else %}
+              <p>No messages yet.</p>
+          </div>
+          <h5> </h5>
+            {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+
+
+        <script>
+             document.getElementById('search-trigger').addEventListener('click', function() {
+            document.getElementById('search-popup').style.display = 'block'; // Показываем попап
+            document.getElementById('main-header').style.display = 'none'; // Скрываем хедер
+        });
+
+        function closeSearch() {
+            document.getElementById('search-popup').style.display = 'none'; // Скрываем попап
+            document.getElementById('main-header').style.display = 'block'; // Показываем хедер
+            window.location.reload();
+        }
+
+        function searchUsers() {
+            var input = document.getElementById('searchInput');
+            var query = input.value;
+            console.log("Search query:", query);
+            fetch(`/messages/?q=${query}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())  // Предполагаем, что ответ приходит в формате JSON
+                .then(users => {
+                    const userList = document.getElementById('userList');
+                    userList.innerHTML = ''; // Очистить текущий список
+                    users.forEach(user => {
+                        const userElement = document.createElement('a');
+                        userElement.href = `/message/${user.id}`; // Ссылка на страницу сообщения
+                        userElement.className = 'notification message';
+                        userElement.innerHTML = `
+                            <img src="${user.avatar_url.includes('/media/pofile%20picture.png') ? '/static/assets/img/profile picture.png' : user.avatar_url}" alt="" style="width: 50px; height: 50px; border-radius: 100%;">
+                            <div>
+                                <h4>${user.username}</h4>
+                                <p>${user.last_message_text || 'No messages yet.'}</p>
+                            </div>
+                            <h5>${user.last_message_time || 'Time not available'}</h5>
+                        `;
+                        userList.appendChild(userElement);
+                    });
+                });
+           }
+
+
+        </script>
+
+    <footer>
+        <div class="footer_inner">
+            <a href="{% url 'home' %}"><img src="{% static 'assets/img/home.png' %}" alt=""></a>
+            <a href="{% url 'notifications' %}"><img src="{% static 'assets/img/notification.png' %}" alt=""></a>
+            <a href="{% url 'profile' %}"><img src="{% static 'assets/img/profile.png' %}" alt=""></a>
+            <a href="{% url 'messages' %}"><img src="{% static 'assets/img/messages active.png' %}" alt=""></a>
+        </div>
+    </footer>
+</section>
+  </body>
+</html>

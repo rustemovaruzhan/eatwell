@@ -1,0 +1,88 @@
+body {
+  font-family: "Roboto", sans-serif;
+  color: white;
+  display: flex;
+  background-color: #E0E0E0;
+}
+
+.green {
+  top: 0;
+  z-index: -1;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #93b882;
+}
+
+h5 {
+  font-family: Roboto;
+  font-size: 60px;
+  font-weight: 500;
+  line-height: 70.31px;
+  text-align: center;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  gap: 30px;
+  color: white;
+  margin-bottom: 58px;
+}
+
+.navigation a {
+  color: white;
+  text-decoration: none;
+}
+
+.login {
+  text-decoration: none;
+  background-color: #56a367;
+  border-radius: 5px;
+  color: #ffffff;
+  font-family: Roboto;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28.13px;
+  text-align: center;
+  border: none;
+  padding: 13px 0;
+  width: 100%;
+}
+
+img {
+  height: 15px;
+  width: 15px;
+}
+
+span {
+  font-family: Roboto;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 18.75px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+section {
+  position: relative;
+  margin: 0 auto;
+  padding: 0 15px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.217687) 0.01%,
+    rgba(51, 49, 51, 0) 0.02%,
+    #303030 98.41%,
+    #000000 98.42%
+  );
+  min-height: 896px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 141px;
+  box-sizing: border-box;
+  min-width: 414px;
+  max-width: 550px;
+}

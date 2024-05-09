@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+    <style>
+      p{
+        margin: 0;
+      }
+      .error{
+        max-width: 414px;
+        word-wrap: break-word;
+        color: red;
+        padding:10px;
+      }
+    </style>
+  </head>
+  <body>
+    <section>
+      
+      <div>
+        <h3 class="eat">Eat<span class="well">Well</span></h3>
+        <h5>Create Your Account</h5>
+      </div>
+      <form method="post">
+          {% csrf_token %}
+          <p>Username:</p>
+          {{ form.username }}
+          {% if form.username.errors %}
+              <div class="error">{{ form.username.errors.as_text }}</div>
+          {% endif %}
+          <p>Email:</p>
+          {{ form.email }}
+          {% if form.email.errors %}
+              <div class="error">{{ form.email.errors.as_text }}</div>
+          {% endif %}
+          <p>Password:</p>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+              <div class="error">{{ form.password1.errors.as_text }}</div>
+          {% endif %}
+          <p>Confirm password:</p>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+              <div class="error">{{ form.password2.errors.as_text }}</div>
+          {% endif %}
+          <input type="hidden" name="next" value="{{ request.GET.next }}">
+          <button type="submit" class="login">Sign up</button>
+      </form>
+      </form>
+        <span class="dont">Already have an account? <a href="{% url 'login' %}">Login</a></span>
+      </form>
+    </section>
+  </body>
+</html>

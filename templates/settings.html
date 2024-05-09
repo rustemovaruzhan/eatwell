@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+      <style>
+          .main_profile {
+            overflow: auto;
+            margin-bottom: 20px;
+          }
+          .temp{
+          margin: 50px;
+          }
+      </style>
+  </head>
+  <body>
+    <section class="home_section">
+      <header class="header_profile">
+        <div class="header_inner">
+          <a href="{% url 'home' %}"><img src="{% static 'assets/img/arrow.png' %}" alt="" /></a>
+          <div class="user">
+            {% if avatar %}
+                <img src="{{ avatar.image.url }}" alt="" style="width: 100px; height: 100px; border-radius: 100%;">
+                {% else %}
+                <img src="{% static 'assets/img/profile picture.png' %}" alt="">
+            {% endif %}
+            <h5>{{ user.username }}</h5>
+          </div>
+          <a href="#"><img src="{% static 'assets/img/search.png' %}" alt="" /></a>
+        </div>
+      </header>
+
+      <div class="main_home main_profile">
+          <form method="POST" enctype="multipart/form-data" class="settingsform">
+              {% csrf_token %}
+              {{ u_form.as_p }}
+              <input type="hidden" name="action" value="update_username">
+              <button type="submit" class="login">Обновить имя пользователя</button>
+          </form>
+
+          <form method="POST" enctype="multipart/form-data" class="settingsform">
+              {% csrf_token %}
+              {{ p_form.as_p }}
+              <input type="hidden" name="action" value="update_avatar">
+              <button type="submit" class="login">Обновить аватар</button>
+          </form>
+          <div class="temp">
+            <a href="{% url 'form' %}"><button class="login">Пройти анкету </button></a>
+        </div>
+      </div>
+
+      <footer>
+        <div class="footer_inner">
+          <a href="{% url 'home' %}"
+            ><img src="{% static 'assets/img/home active.png' %}" alt=""
+          /></a>
+          <a href="{% url 'notifications' %}"
+            ><img src="{% static 'assets/img/notification.png' %}" alt=""
+          /></a>
+          <a href="{% url 'profile' %}"
+            ><img src="{% static 'assets/img/profile.png' %}" alt=""
+          /></a>
+          <a href="{% url 'messages' %}"
+            ><img src="{% static 'assets/img/messages.png' %}" alt=""
+          /></a>
+        </div>
+      </footer>
+    </section>
+  </body>
+</html>

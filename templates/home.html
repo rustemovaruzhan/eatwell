@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+    <style>
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      .modal-content {
+        background-color: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .close {
+         position: absolute;
+         top: 10px;
+         right: 10px;
+         cursor: pointer;
+      }
+
+      /* Button styling */
+      .add-recipe-btn {
+        display: block;
+        margin: 10px auto;
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .add-recipe-btn:hover {
+        background-color: #45a049;
+      }
+
+      /* Style for recipe list */
+      .recipe-list {
+        margin-top: 20px;
+      }
+
+      .recipe-item {
+        border: 1px solid #ddd;
+        margin-bottom: 10px;
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      .recipe-item:hover {
+        background-color: #f5f5f5;
+      }
+
+      .programs {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 0;
+      }
+
+      .program-block {
+        border-radius: 5px;
+
+        flex: 0 0 auto; /* Do not grow, do not shrink, base width */
+        margin-right: 20px;
+        width: 182px; /* Or the width of your choice */
+        height: 200px; /* Or the height of your choice */
+        background-color: #f0f0f0; /* Placeholder color */
+        text-align: center;
+        /* Further styling as needed */
+      }
+
+      .plans-block {
+        width: 130px; /* Or the width of your choice */
+        height: 160px;
+      }
+
+      .program-block img {
+        border-radius: 5px;
+        max-width: 100%;
+        max-height: 100%;
+        height: 100%;
+        filter: brightness(50%);
+        transition: all 0.8s ease-in-out;
+        object-fit: cover; /* Cover the container while maintaining aspect ratio */
+        display: block; /* Remove any extra space below the image */
+      }
+
+      .program-block img:hover {
+        filter: brightness(100%);
+      }
+
+      /* Ensure images do not cause overflow */
+
+      .programs::-webkit-scrollbar {
+        height: 4px; /* Smaller height for horizontal scrollbar */
+        background: transparent; /* Optional: Transparent background */
+      }
+
+      .programs::-webkit-scrollbar-thumb {
+        background: #888; /* Scroll thumb color */
+        border-radius: 2px;
+      }
+
+      .programs::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Scroll thumb color on hover */
+      }
+
+      /* For Firefox */
+      .programs {
+        scrollbar-width: thin; /* 'auto' or 'thin' */
+        scrollbar-color: #888 #ffffff00; /* thumb and track color */
+      }
+
+      /* For IE and Edge */
+      .programs {
+        -ms-overflow-style: -ms-autohiding-scrollbar; /* Auto-hiding scrollbar */
+      }
+
+      .menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        z-index: 1000;
+        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.8s ease-in-out;
+      }
+
+      .menu__inner {
+        width: 100%;
+        height: 100%;
+        display: flex;
+      }
+
+      .main__menu {
+        width: 75%;
+        background-color: #56a367;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .borderimg {
+        width: 280px;
+        margin-bottom: 42px;
+      }
+
+      .links {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .links a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        padding-left: 18px;
+        padding-top: 10px;
+        padding-bottom: 14px;
+        padding-right: 16px;
+        gap: 0px;
+        border-radius: 5px;
+      }
+
+      .links span {
+        font-family: Roboto;
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 23.44px;
+        text-align: left;
+        color: #222222;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      .close__area {
+        width: 25%;
+        background-color: #d9d9d9;
+        height: 100%;
+        position: relative;
+      }
+
+      .close__area img {
+        position: absolute;
+        top: 55px;
+        right: 15px;
+      }
+
+      #menu:target {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .user h5 {
+        color: white;
+        margin: 0;
+      }
+
+      .programs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .programs {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+
+      .program-block {
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .user {
+        margin-bottom: 45px;
+      }
+      .logoutform {
+        position: absolute;
+        bottom: 18px;
+        cursor: pointer;
+      }
+      .logout {
+        cursor: pointer;
+        font-family: Roboto;
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 21.09px;
+        text-align: center;
+        color: white;
+        background-color: transparent;
+        border: none;
+      }
+      .add-workout-btn{
+        display: block;
+        margin: 10px auto;
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .h3{
+        align:center;
+      }
+      .main_home {
+            overflow: auto;
+            margin-bottom: 20px;
+          }
+      .temp{
+          margin-bottom: 50px;
+       }
+      .advert{
+          width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="home_section">
+      <header>
+        <div class="header_inner">
+          <a href="#menu"
+            ><img src="{% static 'assets/img/menu.png' %}" alt=""
+          /></a>
+          <h5>Home</h5>
+          <a href="#"
+            ><img src="{% static 'assets/img/search.png' %}" alt=""
+          /></a>
+        </div>
+      </header>
+      <div class="menu" id="menu">
+        <div class="menu__inner">
+          <div class="main__menu">
+            <div class="user">
+              <h5>{{user_name}}</h5>
+            </div>
+
+            <img
+              src="{% static 'assets/img/border.png' %}"
+              class="borderimg"
+              alt=""
+            />
+            <div class="links">
+              <a href="{% url 'home' %}">
+                <span>Home</span>
+                <img src="{% static 'assets/img/arrow-right.png' %}" alt="" />
+              </a>
+              <a href="{% url 'settings' %}">
+                <span>Settings</span>
+                <img src="{% static 'assets/img/arrow-right.png' %}" alt="" />
+              </a>
+              <a href="{% url 'blogs' %}">
+                <span>Articles</span>
+                <img src="{% static 'assets/img/arrow-right.png' %}" alt="" />
+              </a>
+            </div>
+
+            <form action="{% url 'logout' %}" method="post" class="logoutform">
+              {% csrf_token %}
+              <input type="submit" value="Logout" class="logout" />
+            </form>
+          </div>
+          <a href="##" class="close__area">
+            <img src="{% static 'assets/img/close.png' %}" alt="" />
+          </a>
+        </div>
+      </div>
+      <div class="main_home">
+        <h5>Nutrition Program</h5>
+        <div class="programs">
+          {% for program in programs %}
+          <div
+            class="program-block plans-block"
+            onclick="openModal('modal{{ program.id }}')"
+          >
+            <img src="{{ program.image.url }}" alt="{{ program.title }}" />
+          </div>
+            <div id="modal{{ program.id }}" class="modal">
+              <div class="modal-content">
+                <span
+                  class="close"
+                  onclick="closeModal('modal{{ program.id }}')"
+                  >&times;</span
+                >
+                <div class="tobig">
+                <h3>{{ program.title }}</h3>
+                </div>
+                <ul>
+                  <li>Proteins: {{ program.proteins }}g</li>
+                  <li>Fats: {{ program.fats }}g</li>
+                  <li>Carbohydrates: {{ program.carbohydrates }}g</li>
+                  <li>Kcal: {{ program.kcal }}</li>
+                </ul>
+                <button
+                  class="add-recipe-btn"
+                  data-program-id="{{ program.id }}"
+                >
+                  Add Recipe
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <h5>Training Plan</h5>
+        <div class="programs">
+          {% for workout in workout_programs %}
+          <div
+            class="program-block"
+            onclick="openWorkoutModal('{{ workout.id }}')"
+          >
+            <img src="{{ workout.image.url }}" alt="{{ workout.title }}" />
+          </div>
+
+          <!-- Модальное окно для каждой тренировки -->
+          <div id="workoutModal{{ workout.id }}" class="modal">
+            <div class="modal-content">
+              <span
+                  class="close"
+                  onclick="closeModal('workoutModal{{ workout.id }}')"
+                  >&times;</span
+                >
+              <h3 class="">{{ workout.title }}</h3>
+              <p>{{ workout.description }}</p>
+              <button
+                class="add-workout-btn"
+                data-workout-id="{{ workout.id }}"
+              >
+                Add to Profile
+              </button>
+            </div>
+          </div>
+          {% empty %}
+          <p>No workout programs added yet.</p>
+          {% endfor %}
+        </div>
+        <div class="temp">
+        <h5>Advert</h5>
+        <img src="{% static 'assets/img/advert.jpg' %}" alt="" class="advert" />
+        </div>
+      </div>
+      <script>
+        // JavaScript for modal functionality
+        function openModal(modalId) {
+          var modal = document.getElementById(modalId);
+          modal.style.display = "block";
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+          var addButton = document.getElementsByClassName("add-recipe-btn");
+          Array.from(addButton).forEach(function (button) {
+            button.addEventListener("click", function () {
+              var programId = this.getAttribute("data-program-id");
+              fetch(`/add_recipe/${programId}/`, {
+                method: "GET", // ИЛИ 'POST', если настроено так в представлении
+                credentials: "include",
+                headers: {
+                  "X-CSRFToken": getCookie("csrftoken"), // Необходимо для обработки CSRF
+                },
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  alert(data.message); // Выводим сообщение об успешном добавлении
+                  // Закрываем модальное окно или обновляем интерфейс
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                });
+            });
+          });
+        });
+
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(
+                  cookie.substring(name.length + 1)
+                );
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+      </script>
+
+      <script>
+        function openWorkoutModal(workoutId) {
+          var modal = document.getElementById("workoutModal" + workoutId);
+          modal.style.display = "block";
+        }
+        function closeModal(modalId) {
+          document.getElementById(modalId).style.display = "none";
+        }
+
+        window.onclick = function (event) {
+          // Закрытие модального окна при клике вне его области
+          if (event.target.classList.contains("modal")) {
+            event.target.style.display = "none";
+          }
+        };
+        document.addEventListener("DOMContentLoaded", function () {
+          document.querySelectorAll(".add-workout-btn").forEach((button) => {
+            button.addEventListener("click", function () {
+              const workoutId = this.getAttribute("data-workout-id");
+              fetch(`/add_workout/${workoutId}/`, {
+                method: "POST", // Измените метод на POST, если ваш backend ожидает POST-запрос
+                headers: {
+                  "X-CSRFToken": getCookie("csrftoken"),
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ workout_id: workoutId }),
+                credentials: "same-origin",
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  alert(data.message); // Показываем сообщение об успешном добавлении
+                })
+                .catch((error) => {
+                  console.error("Ошибка:", error);
+                });
+            });
+          });
+        });
+
+        function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(
+                  cookie.substring(name.length + 1)
+                );
+                break;
+              }
+            }
+          }
+          return cookieValue;
+        }
+      </script>
+
+      <footer>
+        <div class="footer_inner">
+          <a href="{% url 'home' %}"
+            ><img src="{% static 'assets/img/home active.png' %}" alt=""
+          /></a>
+          <a href="{% url 'notifications' %}"
+            ><img src="{% static 'assets/img/notification.png' %}" alt=""
+          /></a>
+          <a href="{% url 'profile' %}"
+            ><img src="{% static 'assets/img/profile.png' %}" alt=""
+          /></a>
+          <a href="{% url 'messages' %}"
+            ><img src="{% static 'assets/img/messages.png' %}" alt=""
+          /></a>
+        </div>
+      </footer>
+    </section>
+  </body>
+</html>

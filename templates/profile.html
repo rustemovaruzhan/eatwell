@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+      {% load static %}
+    <link rel="stylesheet" href="{% static 'assets/css/normalize.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/login.css' %}" />
+      <style>
+          .main_profile {
+            overflow: auto;
+            margin-bottom: 20px;
+          }
+          .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+.popup-content {
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* Стили для recipe-item */
+.recipe-item {
+    display: inline-block;
+    margin: 10px;
+}
+.workout-item {
+    display: inline-block;
+    margin: 10px;
+}
+
+.recipe-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+/* При ховере над recipe-img */
+.recipe-img:hover {
+    opacity: 0.7;
+}
+
+.workout-img {
+    width: 200px;
+    height: 150px;
+    border-radius: 10%;
+    cursor: pointer;
+}
+.workout-img:hover {
+    opacity: 0.7;
+}
+.profile_details{
+    margin-bottom: 30px;
+}
+.profile_details p{
+    font-family: Roboto;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28.13px;
+    text-align: left;
+    color: #222222;
+    margin-bottom: 17px;
+}
+.programs {
+    margin-bottom: 50px;
+}
+      </style>
+  </head>
+  <body>
+    <section class="home_section">
+    <header class="header_profile">
+        <div class="header_inner">
+            <a href="{% url 'home' %}"><img src="{% static 'assets/img/arrow.png' %}" alt=""></a>
+            <div class="user">
+                {% if avatar %}
+                <img src="{{ avatar.image.url }}" alt="" style="width: 100px; height: 100px; border-radius: 100%;">
+                {% else %}
+                <img src="{% static 'assets/img/profile picture.png' %}" alt="">
+                {% endif %}
+                <h5>{{ user_name }}</h5>
+            </div>
+            <a href="#"><img src="{% static 'assets/img/search.png' %}" alt=""></a>
+        </div>
+    </header>
+    <div class="main_home main_profile">
+        {% if registration_form %}
+            <div class="profile_details">
+                <h5>Profile Details</h5>
+                <p><strong>Gender:</strong> {{ registration_form.gender }}</p>
+                <p><strong>Age:</strong> {{ registration_form.age }}</p>
+                <p><strong>Height:</strong> {{ registration_form.height }} cm</p>
+                <p><strong>Weight:</strong> {{ registration_form.weight }} kg</p>
+                <p><strong>Daily Activity:</strong> {{ registration_form.daily_activity }} hours</p>
+            </div>
+        {% endif %}
+        <h5>Workout</h5>
+        <div class="programs" style="overflow-x: scroll; scrollbar-width: thin;">
+        {% for workout in saved_workouts %}
+            <div class="workout-item">
+                <img src="{{ workout.image.url }}" alt="{{ workout.title }}" class="workout-img" data-title="{{ workout.title }}" data-description="{{ workout.description }}" >
+            </div>
+        {% empty %}
+            <p>You have not added any workouts yet.</p>
+        {% endfor %}
+        </div>
+        <div id="workout-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-popup">&times;</span>
+                <h2 id="popup-title-workout"></h2>
+                <p id="popup-description-workout"></p>
+            </div>
+        </div>
+        <h5>Recipes</h5>
+        <div class="programs recipes" style="overflow-x: scroll; scrollbar-width: thin;">
+        {% for recipe in saved_recipes %}
+            <div class="recipe-item">
+                <img src="{{ recipe.image.url }}" alt="{{   recipe.title }}" class="recipe-img" data-title="{{ recipe.title }}" data-proteins="{{ recipe.proteins }}" data-fats="{{ recipe.fats }}" data-carbohydrates="{{ recipe.carbohydrates }}" data-kcal="{{ recipe.kcal }}" data-description="{{ recipe.description }}">
+            </div>
+        {% empty %}
+            <p>You have not added any recipes yet.</p>
+        {% endfor %}
+
+        <div id="recipe-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-popup">&times;</span>
+                <h2 id="popup-title"></h2>
+                <div id="popup-info"></div>
+                <p id="popup-description"></p>
+            </div>
+        </div>
+        </div>
+</form>
+
+    </div>
+    <script>
+// При нажатии на картинку рецепта, отображаем popup с информацией о рецепте
+const recipeImages = document.querySelectorAll('.recipe-img');
+const recipePopup = document.getElementById('recipe-popup');
+const popupTitle = document.getElementById('popup-title');
+const popupInfo = document.getElementById('popup-info');
+const popupDescription = document.getElementById('popup-description');
+
+recipeImages.forEach(image => {
+    image.addEventListener('click', () => {
+        popupTitle.textContent = image.getAttribute('data-title');
+        popupInfo.innerHTML = `
+            <p>Proteins: ${image.getAttribute('data-proteins')}g</p>
+            <p>Fats: ${image.getAttribute('data-fats')}g</p>
+            <p>Carbohydrates: ${image.getAttribute('data-carbohydrates')}g</p>
+            <p>Kcal: ${image.getAttribute('data-kcal')}</p>
+        `;
+        popupDescription.textContent = image.getAttribute('data-description');
+        recipePopup.style.display = 'block';
+    });
+});
+
+// При нажатии на картинку тренировки, отображаем popup с информацией о тренировке
+const workoutImages = document.querySelectorAll('.workout-img');
+const workoutPopup = document.getElementById('workout-popup');
+const popupTitleWorkout = document.getElementById('popup-title-workout');
+const popupDescriptionWorkout = document.getElementById('popup-description-workout');
+
+workoutImages.forEach(image => {
+    image.addEventListener('click', () => {
+        popupTitleWorkout.textContent = image.getAttribute('data-title');
+        popupDescriptionWorkout.textContent = image.getAttribute('data-description');
+        workoutPopup.style.display = 'block';
+    });
+});
+
+// Закрываем popup при клике на крестик
+const closePopupBtns = document.querySelectorAll('.close-popup');
+closePopupBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        recipePopup.style.display = 'none';
+        workoutPopup.style.display = 'none';
+    });
+});
+
+// Закрываем popup при клике за его пределами
+window.addEventListener('click', (event) => {
+    if (event.target === recipePopup || event.target === workoutPopup) {
+        recipePopup.style.display = 'none';
+        workoutPopup.style.display = 'none';
+    }
+});
+
+
+    </script>
+    <footer>
+       <div class="footer_inner">
+            <a href="{% url 'home' %}"><img src="{% static 'assets/img/home.png' %}" alt=""></a>
+            <a href="{% url 'notifications' %}"><img src="{% static 'assets/img/notification.png' %}" alt=""></a>
+            <a href="{% url 'profile' %}"><img src="{% static 'assets/img/profile active.png' %}" alt=""></a>
+            <a href="{% url 'messages' %}"><img src="{% static 'assets/img/messages.png' %}" alt=""></a>
+        </div>
+    </footer>
+</section>
+  </body>
+</html>
