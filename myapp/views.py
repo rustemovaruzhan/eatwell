@@ -199,33 +199,32 @@ def generate_response(request):
         current_user = request.user
 
         ChatMessage.objects.create(user=current_user, message=user_message, role='user')
-
-        response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            proxies={
-                'http': 'http://117.250.3.58:8080',  # Используйте актуальный IP и порт прокси-сервера для HTTP
-                'https': 'http://117.250.3.58:8080'  # Используйте актуальный IP и порт прокси-сервера для HTTPS
+        prompt = {
+            "modelUri": "gpt://SECRET/yandexgpt-lite",
+            "completionOptions": {
+                "stream": False,
+                "temperature": 0.6,
+                "maxTokens": "2000"
             },
-            headers={"Authorization": "Bearer " + str(apiKey)},
-            json={
-                "model": "gpt-3.5-turbo",
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": user_message
-                    },
-                    {
-                        "role": "system",
-                        "content": "Ты помощник по питанию. Твоя задача консультировать по этому направлению."
-                    }
-                ]
-            }
-        )
-        print(response)
-        # Get the response from the OpenAI API
+            "messages": [
+                {
+                    "role": "system",
+                    "text": "Ты ассистент по правильному питанию и тренировкам. Помогай людям с вопросами в этом направлении."
+                },
+                {
+                    "role": "user",
+                    "text": user_message
+                },
+            ]
+        }
+        url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Api-Key SECRET"
+        }
+        response = requests.post(url, headers=headers, json=prompt)
         response_json = response.json()
-        print(response_json)
-        content = response_json['choices'][0]['message']['content']
+        content = response_json['result']['alternatives'][0]['message']['text']
         assistant_response = content
 
         # Save the assistant's response to the database with the role 'assistant'
